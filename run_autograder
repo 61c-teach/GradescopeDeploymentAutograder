@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+./setup.sh ag
+
+BASE_DIR=$AGROOT
+
+# Update autograder files
+cd $AGROOT
+git pull
+
+./run_autograder
