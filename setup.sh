@@ -1,29 +1,55 @@
 #!/usr/bin/env bash
 
-export GHUSER=61c-teach
-export REPO=fa19-labs-autograder
-export REMOTE=git@github.com:$GHUSER/$REPO
-export AGROOT=/autograder/$REPO
-
-if [ $1 = "ag" ]; then
-exit
-fi
+# Make sure to change me to your autograder repo!
+source settings.sh
 
 cd /autograder/source
 
-apt-get install -y python3 python3-pip python3-dev
-
 mkdir -p /root/.ssh
-cp ssh_config /root/.ssh/config
+cat ssh_config >> /root/.ssh/config
 # Make sure to include your private key here
+if [[ ! -f "deploy_key" ]]; then
+    chmod +x gen_deploy_key.sh
+    ./gen_deploy_key
+    echo "[INFO]: Please add this public deploy_key to your github repo."
+    echo ----------------------------------------
+    cat deploy_key.pub
+    echo ----------------------------------------
+    echo "[INFO]: If you want to keep the same keys, please download the deploy_key private key though ssh."
+    echo "[WARNING]: A new deploy key will be generated every time you reset up the autograder. This means you will have to update the github repo's deploy key"
+fi
 cp deploy_key /root/.ssh/deploy_key
 # To prevent host key verification errors at runtime
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 # Clone autograder files
-git clone $REMOTE $AGROOT
-# Install python3 dependencies
-FILE=$AGROOT/requirements.txt
+code=1
+count=0
+max=5
+sleep=5s
+echo "Attempting to clone $REMOTE..."
+while [[ $code != 0 ]]; do
+    git clone $REMOTE $AGROOT
+    code=$?
+    if [[ $cose != 0 ]]; then
+        count=$((count + 1))
+        if [[ $count -eq $max ]]; then
+            echo "Giving up on cloning the remote repo..."
+            exit 1
+        fi
+        echo "Could not clone the autograder repository, trying again in $sleep."
+        sleep $sleep
+    fi
+done
+cd $AGROOT
+for branch in $(git branch --all | grep '^\s*remotes' | egrep --invert-match '(:?HEAD|master)$'); do
+    git branch --track "${branch##*/}" "$branch"
+done
+git checkout $branch
+# Run the setup
+exit
+FILE=setup.sh
 if test -f "$FILE"; then
-    pip3 install -r $FILE
+    chmod +x $FILE
+    ./$FILE
 fi
