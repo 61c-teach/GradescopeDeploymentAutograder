@@ -6,4 +6,8 @@ if [[ ! -z "$1" ]]; then
     EMAIL=$1
 fi
 
-ssh-keygen -t rsa -b 4096 -C "$EMAIL" -f deploy_key -P ""
+if [[ -z "$DEPLOY_KEY" ]]; then
+    DEPLOY_KEY=deploy_key
+fi
+
+ssh-keygen -t rsa -b 4096 -C "$EMAIL" -f $DEPLOY_KEY -P ""

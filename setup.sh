@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 
-# Make sure to change me to your autograder repo!
+cd /autograder/source
+# Make sure you edit the settings.sh file to update for your repo.
 source settings.sh
 
-cd /autograder/source
-
-mkdir -p /root/.ssh
-cat ssh_config >> /root/.ssh/config
+mkdir -p $KEY_STORE
 # Make sure to include your private key here
 if [[ ! -f "deploy_key" ]]; then
     chmod +x gen_deploy_key.sh
@@ -18,9 +16,12 @@ if [[ ! -f "deploy_key" ]]; then
     echo "[INFO]: If you want to keep the same keys, please download the deploy_key private key though ssh."
     echo "[WARNING]: A new deploy key will be generated every time you reset up the autograder. This means you will have to update the github repo's deploy key"
 fi
-cp deploy_key /root/.ssh/deploy_key
+chmod 700 $KEY_STORE $DEPLOY_KEY
+cp $DEPLOY_KEY $KEY_STORE
+echo -e "Host $REPOHOST\n  IdentityFile $KEY_STORE/$DEPLOY_KEY\n  IdentitiesOnly yes\n\n" >> /root/.ssh/config
+
 # To prevent host key verification errors at runtime
-ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+ssh-keyscan -t rsa $REPOHOST >> ~/.ssh/known_hosts
 
 # Clone autograder files
 code=1
@@ -31,7 +32,7 @@ echo "Attempting to clone $REMOTE..."
 while [[ $code != 0 ]]; do
     git clone $REMOTE $AGROOT
     code=$?
-    if [[ $cose != 0 ]]; then
+    if [[ $code != 0 ]]; then
         count=$((count + 1))
         if [[ $count -eq $max ]]; then
             echo "Giving up on cloning the remote repo..."
@@ -45,11 +46,15 @@ cd $AGROOT
 for branch in $(git branch --all | grep '^\s*remotes' | egrep --invert-match '(:?HEAD|master)$'); do
     git branch --track "${branch##*/}" "$branch"
 done
-git checkout $branch
+echo "Checking out branch $BRANCH..."
+git checkout $BRANCH
 # Run the setup
-exit
+
 FILE=setup.sh
-if test -f "$FILE"; then
+if [[ -f "$FILE" ]]; then
+    echo "Found the setup file. Running it..."
     chmod +x $FILE
     ./$FILE
+else
+    echo "Could not find the setup file in the downloaded repo!"
 fi

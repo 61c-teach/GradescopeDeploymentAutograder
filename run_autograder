@@ -4,7 +4,7 @@ source /autograder/source/settings.sh
 
 # Update autograder files
 cd $AGROOT
-git pull
+git pull origin $BRANCH
 git submodule update --init --recursive
 
 ./run_autograder
