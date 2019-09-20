@@ -7,4 +7,5 @@ cd $AGROOT
 git pull origin $BRANCH
 git submodule update --init --recursive
 
+chmod +x run_autograder
 ./run_autograder
