@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-cd /autograder/source
+gda_path="/autograder/GradescopeDeploymentAutograder"
+mv /autograder/source $gda_path
+cd $gda_path
 # Make sure you edit the settings.sh file to update for your repo.
 source settings.sh
 
