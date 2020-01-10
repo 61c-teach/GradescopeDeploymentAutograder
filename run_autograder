@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Save current location
-OPWD=$PWD
 
 # Get the settings variables
 source /autograder/GradescopeDeploymentAutograder/settings.sh
@@ -12,7 +10,5 @@ git submodule update --init --recursive
 # Make sure the run_autograder script is runnable
 chmod +x run_autograder
 
-# Return to the current context
-cd $OPWD
 # Execute (source) the run autograder script from the same location.
-. $AGROOT/run_autograder
+./run_autograder
