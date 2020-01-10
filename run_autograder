@@ -15,4 +15,4 @@ chmod +x run_autograder
 # Return to the current context
 cd $OPWD
 # Execute (source) the run autograder script from the same location.
-. ./run_autograder
+. $AGROOT/run_autograder
