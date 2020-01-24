@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+#/*
+# * @Author: ThaumicMekanism [Stephan K.]
+# * @Date: 2020-01-23 21:45:01
+# * @Last Modified by: ThaumicMekanism [Stephan K.]
+# * @Last Modified time: 2020-01-23 21:45:01
+# */
+
 
 export REPOHOST=github.com
 export REPOUSER=git
